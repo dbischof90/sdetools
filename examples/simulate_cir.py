@@ -15,16 +15,16 @@ def cir_diffusion(x, c):
     return np.sqrt(x) * c
 
 
-cir_process = SDE(cir_drift, cir_diffusion, timerange=[0,10])
+cir_process = SDE(cir_drift, cir_diffusion, timerange=[0,2])
 
-euler_path = np.zeros([100, 2001])
-platen_path = np.zeros([100, 2001])
+euler_path = np.zeros([10, 2001])
+platen_path = np.zeros([10, 2001])
 
 print("Run time estimation between Euler and Platen discretization of an CIR process.")
 
-parameter = {'a': 2, 'b': 0.5, 'c' : 0.2}
+parameter = {'a': 2, 'b': 2.5, 'c' : 0.2}
 t = time()
-for i in range(100):
+for i in range(10):
     tmp = []
     for path in Euler(cir_process, parameter, steps = 2000):
         tmp.append(path)
@@ -32,7 +32,7 @@ for i in range(100):
 print("Euler: " + str(time() - t))
 
 t = time()
-for i in range(100):
+for i in range(10):
     tmp = []
     for path in Platen(cir_process, parameter, steps = 2000):
         tmp.append(path)
