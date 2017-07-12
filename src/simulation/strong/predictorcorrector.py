@@ -2,7 +2,7 @@
 from src.scheme import Scheme
 import numpy as np
 
-class Euler(Scheme):
+class Order_10(Scheme):
     def __init__(self, sde, parameter, steps, derivatives, alpha=0.5, beta=0.5):
         super().__init__(sde, parameter, steps)
         self.diffusion_x = derivatives['diffusion']['x']
