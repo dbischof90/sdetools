@@ -2,7 +2,7 @@
 from src.scheme import Scheme
 import numpy as np
 
-class Platen(Scheme):
+class Order_10(Scheme):
     def __init__(self, sde, parameter, steps):
         super().__init__(sde, parameter, steps)
 

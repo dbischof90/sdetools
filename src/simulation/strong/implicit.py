@@ -3,7 +3,7 @@ from src.scheme import Scheme
 from scipy.optimize import newton
 import numpy as np
 
-class Trapez(Scheme):
+class Order_10(Scheme):
     def __init__(self, sde, parameter, steps, alpha=1):
         super().__init__(sde, parameter, steps)
         self.alpha = alpha

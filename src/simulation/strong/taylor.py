@@ -2,7 +2,7 @@
 from src.scheme import Scheme
 import numpy as np
 
-class Euler(Scheme):
+class Order_05(Scheme):
     def __init__(self, sde, parameter, steps):
         super().__init__(sde, parameter, steps)
 
@@ -10,7 +10,7 @@ class Euler(Scheme):
         self.x += self.drift(x, t) * self.h + \
                   self.diffusion(x, t) * np.random.normal(0.0, np.sqrt(self.h))
 
-class Milstein(Scheme):
+class Order_10(Scheme):
     def __init__(self, sde, parameter, steps, derivatives):
         super().__init__(sde, parameter, steps)
         self.diffusion_x = derivatives['diffusion']['x']
