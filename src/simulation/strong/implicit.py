@@ -1,7 +1,9 @@
 
-from src.scheme import Scheme
-from scipy.optimize import newton
 import numpy as np
+from scipy.optimize import newton
+
+from src.simulation.scheme import Scheme
+
 
 class Order_10(Scheme):
     def __init__(self, sde, parameter, steps, alpha=1):
@@ -13,6 +15,6 @@ class Order_10(Scheme):
                     self.h + self.diffusion(self.x, self.t) * dW)
 
     def propagation(self, x, t):
-        dW = np.random.normal(0.0, np.sqrt(self.h))
+        dW = (np.random.standard_normal()* np.sqrt(self.h))
         self.x = newton(self.state_equation, self.x, args=(dW,))
 

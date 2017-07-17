@@ -1,6 +1,8 @@
 
-from src.scheme import Scheme
 import numpy as np
+
+from src.simulation.scheme import Scheme
+
 
 class Order_10(Scheme):
     def __init__(self, sde, parameter, steps, derivatives, alpha=0.5, beta=0.5):
@@ -18,5 +20,5 @@ class Order_10(Scheme):
 
     def propagation(self, x, t):
         self.x += (self.alpha * self.corrector(self.predictor(), self.t + self.h) + (1 - self.alpha) * self.corrector(self.x, self.t)) * self.h + \
-                  (self.beta * self.diffusion(self.predictor(), self.t + self.h) + (1 - self.beta) * self.diffusion(self.x, self.t)) * np.random.normal(0.0, np.sqrt(self.h))
+                  (self.beta * self.diffusion(self.predictor(), self.t + self.h) + (1 - self.beta) * self.diffusion(self.x, self.t)) * (np.random.standard_normal()* np.sqrt(self.h))
 
