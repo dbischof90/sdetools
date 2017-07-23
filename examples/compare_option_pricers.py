@@ -23,17 +23,17 @@ Do also note that for smaller number of steps the absolute error still has a con
 error will not necessarily be continuously decreasing.
 """
 
-T = 3
+T = 1
 r = 0.01
 sigma = 0.2
 K = 70
 S0 = 80
 parameter = {'mu': r, 'sigma': sigma}
 
+
 """
 First, we define the standard Black-Scholes European Call price function
 """
-
 
 def bs_call(S0, K, T, r, sigma):
     d1 = (np.log(S0 / K) + (r + sigma ** 2 / 2) * T) / (sigma * np.sqrt(T))
@@ -46,7 +46,6 @@ def bs_call(S0, K, T, r, sigma):
 """
 The next step is to define a geometric Brownian Motion.
 """
-
 
 def gbm_drift(x, mu):
     return mu * x
@@ -62,15 +61,15 @@ def gbm_diffusion_x(x, sigma):
 
 gbm_process = SDE(gbm_drift, gbm_diffusion, timerange=[0, T], startvalue=S0)
 
+
 """
 A next step is the generation of 500.000 possible option pay-offs. The option price will be
 the discounted mean of the possible pay-offs.
 """
 
-
 def euler_payoffs(steps):
     euler_values = []
-    for i in range(500000):
+    for i in range(1000000):
         for path in Order_05(gbm_process, parameter, steps=steps): pass
         euler_values.append(max(path - K, 0))
 
@@ -79,7 +78,7 @@ def euler_payoffs(steps):
 
 def milstein_payoffs(steps):
     milstein_values = []
-    for i in range(500000):
+    for i in range(1000000):
         for path in Order_10(gbm_process, parameter, steps=steps, derivatives={'diffusion_x': gbm_diffusion_x}): pass
         milstein_values.append(max(path - K, 0))
 
@@ -107,16 +106,16 @@ with both step sizes to demonstrate the differences.
 
 euler_error = 1
 milstein_error = 1
-steps_euler = 5
-steps_milstein = 5
+steps_euler = 50
+steps_milstein = 50
 
-while euler_error > 10e-6:
+while euler_error > 10e-5:
     euler_error = euler_discretization_error(steps_euler)
-    steps_euler += 5
+    steps_euler += 50
 
-while milstein_error > 10e-6:
+while milstein_error > 10e-5:
     milstein_error = euler_discretization_error(steps_milstein)
-    steps_milstein += 5
+    steps_milstein += 50
 
 t = time()
 np.mean(euler_discretization_error(steps_euler))
@@ -125,7 +124,7 @@ t = time()
 np.mean(milstein_discretization_error(steps_milstein))
 time_milstein = time() - t
 
-print("Calculation time of the Euler scheme with error smaller than 10e-6: {} seconds. Resolution needed: {}".format(
+print("Calculation time of the Euler scheme with error smaller than 10e-5: {} seconds. Resolution needed: {}".format(
     time_euler, T / steps_euler))
-print("Calculation time of the Milstein scheme with error smaller than 10e-6: {} seconds. Resolution needed: {}".format(
+print("Calculation time of the Milstein scheme with error smaller than 10e-5: {} seconds. Resolution needed: {}".format(
     time_milstein, T / steps_milstein))

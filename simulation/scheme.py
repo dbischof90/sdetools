@@ -3,27 +3,29 @@
 This file contains several simulation methods for SDEs.
 """
 
+from collections import deque
+
 import numpy as np
+
 
 class Scheme(object):
     def __init__(self, sde, parameter, steps, **kwargs):
         self.drift = self.map_to_parameter_set(sde.drift, parameter, sde.information['drift'])
         self.diffusion = self.map_to_parameter_set(sde.diffusion, parameter, sde.information['diffusion'])
+        self.steps = steps
+        self.currentstep = 0
+        self.h = (sde.timerange[1] - sde.timerange[0]) / steps
+        self.x = sde.startvalue
+        self.t = sde.timerange[0]
+
         if 'derivatives' in kwargs:
             if 'diffusion_x' in kwargs['derivatives']:
                 self.diffusion_x = self.map_to_parameter_set(kwargs['derivatives']['diffusion_x'], parameter, sde.information['diffusion'])
         if 'path' in kwargs:
-            self.given_path = kwargs['path']
-            self.has_path = True
+            self.driving_stochastic_differential = deque(kwargs['path'])
         else:
-            self.has_path = False
+            self.driving_stochastic_differential = deque(np.random.standard_normal(steps) * np.sqrt(self.h))
         self.dW = []
-
-        self.steps = steps
-        self.currentstep = 0
-        self.h = (sde.timerange[1] - sde.timerange[0])/steps
-        self.x = sde.startvalue
-        self.t = sde.timerange[0]
 
     def map_to_parameter_set(self, func, parameter, information):
         func_parameter = {key: parameter[key] for key in information['parameter']}
@@ -47,10 +49,7 @@ class Scheme(object):
                 self.t += self.h
 
             if not self.currentstep == self.steps:
-                if self.has_path:
-                    self.dW.append(self.given_path[self.currentstep])
-                else:
-                    self.dW.append(np.random.standard_normal() * np.sqrt(self.h))
+                self.dW.append(self.driving_stochastic_differential.popleft())
 
             self.currentstep += 1
             return self.x
