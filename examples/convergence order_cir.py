@@ -1,9 +1,9 @@
 import numpy as np
 
-from src.sde import SDE
-from src.simulation.strong.explicit import Order_10 as Platen
-from src.simulation.strong.taylor import Order_05 as Euler
-from src.simulation.strong.taylor import Order_10 as Milstein
+from sde import SDE
+from simulation.strong.explicit import Order_10 as Platen
+from simulation.strong.taylor import Order_05 as Euler
+from simulation.strong.taylor import Order_10 as Milstein
 
 """
 We compare the order of convergence between two strong Taylor schemes and one derivative-free strong

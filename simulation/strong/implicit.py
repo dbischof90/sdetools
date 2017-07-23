@@ -1,7 +1,7 @@
 
 from scipy.optimize import newton
 
-from src.simulation.scheme import Scheme
+from simulation.scheme import Scheme
 
 
 class Order_10(Scheme):

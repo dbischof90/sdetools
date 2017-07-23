@@ -1,5 +1,4 @@
-
-from src.simulation.scheme import Scheme
+from simulation.scheme import Scheme
 
 
 class Order_05(Scheme):

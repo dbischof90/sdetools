@@ -3,9 +3,9 @@ from time import time
 
 import numpy as np
 
-from src.sde import SDE
-from src.simulation.strong.explicit import Order_10 as Platen
-from src.simulation.strong.taylor import Order_05 as Euler
+from sde import SDE
+from simulation.strong.explicit import Order_10 as Platen
+from simulation.strong.taylor import Order_05 as Euler
 
 """
 We begin with the definition of both drift and diffusion functions and define the CIR process.
@@ -29,7 +29,7 @@ more function evaluations, we expect the Euler scheme to be faster but be less p
 
 euler_path = np.zeros([100, 2001])
 platen_path = np.zeros([100, 2001])
-print("Run time estimation between Euler and Platen discretization of an CIR process.")
+print("Run time estimation for Euler and Platen discretization of an CIR process.")
 
 """
 A dictionary for all parameters is given to the iterators representing the schemes.
