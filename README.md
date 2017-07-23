@@ -22,7 +22,6 @@ from simulation.strong.taylor import Order_05 as Euler
 
 [...]
 
-
 for path_value in Euler(SDE, parameter, steps=50):
     do_stuff_with_it(path_value)
 ```
