@@ -11,12 +11,15 @@ class SDE(object):
     Main object representing an SDE. Contains main methods for functional representation.
     """
 
-    def __init__(self, drift, diffusion, timerange = [0, 1], startvalue = 1):
+    def __init__(self, drift, diffusion, timerange=None, startvalue=1):
+        if timerange is None:
+            timerange = [0, 1]
         self._drift = drift
         self._diffusion = diffusion
         self._timerange = timerange
         self._startvalue = startvalue
         self.build_information()
+        self._driving_process = self
 
     def build_information(self):
         drift_parameter = list(signature(self.drift).parameters)

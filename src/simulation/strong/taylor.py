@@ -1,26 +1,24 @@
-import numpy as np
 
 from src.simulation.scheme import Scheme
 
 
 class Order_05(Scheme):
-    def __init__(self, sde, parameter, steps):
-        super().__init__(sde, parameter, steps)
+    def __init__(self, sde, parameter, steps, **kwargs):
+        super().__init__(sde, parameter, steps, **kwargs)
 
     def propagation(self, x, t):
         drift = self.drift(x, t)
         diffusion = self.diffusion(x, t)
-        dW = np.random.standard_normal() * np.sqrt(self.h)
+        dW = self.dW[-1]
         self.x += drift * self.h + diffusion * dW
 
 
 class Order_10(Scheme):
-    def __init__(self, sde, parameter, steps, derivatives):
-        super().__init__(sde, parameter, steps, derivatives=derivatives)
+    def __init__(self, sde, parameter, steps, derivatives, **kwargs):
+        super().__init__(sde, parameter, steps, derivatives=derivatives, **kwargs)
 
     def propagation(self, x, t):
         drift = self.drift(x, t)
         diffusion = self.diffusion(x, t)
-        diffusion_x = self.diffusion_x(x, t)
-        dW = np.random.standard_normal() * np.sqrt(self.h)
-        self.x += drift * self.h + diffusion * dW + diffusion_x * diffusion * (dW ** 2 - self.h)
+        dW = self.dW[-1]
+        self.x += drift * self.h + diffusion * dW + 0.5 * self.diffusion_x(x, t) * diffusion * (dW ** 2 - self.h)

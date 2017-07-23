@@ -1,5 +1,4 @@
 
-import numpy as np
 from scipy.optimize import newton
 
 from src.simulation.scheme import Scheme
@@ -15,6 +14,6 @@ class Order_10(Scheme):
                     self.h + self.diffusion(self.x, self.t) * dW)
 
     def propagation(self, x, t):
-        dW = (np.random.standard_normal()* np.sqrt(self.h))
+        dW = self.dW[-1]
         self.x = newton(self.state_equation, self.x, args=(dW,))
 
