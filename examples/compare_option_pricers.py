@@ -4,8 +4,8 @@ import numpy as np
 from scipy.stats import norm
 
 from sde import SDE
-from simulation.strong.taylor import Order_05
-from simulation.strong.taylor import Order_10
+from simulation.strong.explicit.taylor import Order_05
+from simulation.strong.explicit.taylor import Order_10
 
 """
 In this example we will see the benefits of higher-order schemes in the application of option pricing through Monte Carlo methods.
