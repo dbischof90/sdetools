@@ -18,7 +18,7 @@ with generic drift and diffusion functions. These can be specified in any way - 
 
 Schemes are implemented as iterators. To import the Euler-Mayurama scheme, use
 ```Python
-from simulation.strong.taylor import Order_05 as Euler
+from simulation.strong.explicit.taylor import Order_05 as Euler
 
 [...]
 
@@ -26,5 +26,9 @@ for path_value in Euler(SDE, parameter, steps=50):
     do_stuff_with_it(path_value)
 ```
 which gives you maximal flexibility, speed and effective memory management.
+
+Weak schemes can also be used if one only needs to approximate moments of the underlying process.
+To make the computation more performant, most schemes are brought down to as few driving stochastic sources as possible.
+Do also note that it's far easier to compute different schemes of the same convergence order, the here presented implementations only represent one of them which seem to perform well on a general scale. There might be other schemes which fit your problem more specific, the convergence order will differ in `O(1)` only.
 
 A short introduction on estimation methods will later be included.
