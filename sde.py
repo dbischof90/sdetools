@@ -18,43 +18,10 @@ class SDE(object):
         self._diffusion = diffusion
         self._timerange = timerange
         self._startvalue = startvalue
-        self.build_information()
-        self._driving_process = self
-
-    def build_information(self):
-        drift_parameter = list(signature(self.drift).parameters)
-        diffusion_parameter = list(signature(self.diffusion).parameters)
-
         self._information = dict()
-        self._information['drift'] = dict()
-        self._information['diffusion'] = dict()
-        if "x" in drift_parameter:
-            self._information['drift']['spatial'] = True
-            drift_parameter.remove("x")
-        else:
-            self._information['drift']['spatial'] = False
-
-        if "t" in drift_parameter:
-            self._information['drift']['time'] = True
-            drift_parameter.remove("t")
-        else:
-            self._information['drift']['time']  = False
-
-        if "x" in diffusion_parameter:
-            self._information['diffusion']['spatial'] = True
-            diffusion_parameter.remove("x")
-        else:
-            self._information['diffusion']['spatial'] = False
-
-        if "t" in diffusion_parameter:
-            self._information['diffusion']['time'] = True
-            diffusion_parameter.remove("t")
-        else:
-            self._information['diffusion']['time'] = False
-
-        self._information['drift']['parameter'] = drift_parameter
-        self._information['diffusion']['parameter'] = diffusion_parameter
-        self._information['parameter'] = [drift_parameter, diffusion_parameter]
+        self._information['drift'] = build_information(drift)
+        self._information['diffusion'] = build_information(diffusion)
+        self._driving_process = self
 
     @property
     def drift(self):
@@ -76,3 +43,26 @@ class SDE(object):
     def information (self):
         return self._information
 
+
+def build_information(func):
+    try:
+        parameter = list(signature(func).parameters)
+    except TypeError:
+        print("ERROR: No proper function was given, the information set can't be built.")
+        raise
+    else:
+        information = dict()
+        if "x" in parameter:
+            information['spatial'] = True
+            parameter.remove("x")
+        else:
+            information['spatial'] = False
+
+        if "t" in parameter:
+            information['time'] = True
+            parameter.remove("t")
+        else:
+            information['time'] = False
+
+        information['parameter'] = parameter
+        return information

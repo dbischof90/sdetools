@@ -26,7 +26,7 @@ class Order_10_Trapez(Scheme):
     def state_equation(self, x, dW):
         explixit_diffusion = self.diffusion(self.x, self.t)
         return x - (
-        self.x + (self.alpha * self.drift(x, self.t + self.h) + (1 - self.alpha) * self.drift(self.x, self.t)) *
+        self.x + (self.alpha * self.drift(x, self.t + self.h) + (1 - self.alpha) * self.drift(self.x, self.t)) * \
         self.h + explixit_diffusion * dW + 0.5 * self.diffusion_x(self.x, self.t) * explixit_diffusion * (
         dW ** 2 - self.h))
 

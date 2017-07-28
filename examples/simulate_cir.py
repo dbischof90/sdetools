@@ -9,14 +9,14 @@ from simulation.strong.explicit.taylor import Order_05 as Euler
 
 """
 We begin with the definition of both drift and diffusion functions and define the CIR process.
-The order in the function interface does not matter.
+The order in the function interface does matter - the interface needs to be f(x, t, arguments).
 """
 
 def cir_drift(x, a, b):
     return a * (b - x)
 
 
-def cir_diffusion(c, x):
+def cir_diffusion(x, c):
     return np.sqrt(x) * c
 
 cir_process = SDE(cir_drift, cir_diffusion, timerange=[0,2])
