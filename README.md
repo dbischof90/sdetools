@@ -34,7 +34,7 @@ Weak schemes can also be used if one only needs to approximate moments of the un
 To make the computation more performant, most schemes are brought down to as few driving stochastic sources as possible.
 Do also note that it's far easier to compute different schemes of the same convergence order, the here presented implementations only represent one of them which seem to perform well on a general scale. There might be other schemes which fit your problem more specific, the convergence order will differ in `O(1)` only.
 
-##### A short note on performance
+#### A short note on performance
 A lot of inline optimization has been performed on the existing code base, down to the case that function calls in the discretization scheme are the by far most expensive operations.
 When choosing a method, do consider how expensive your function call might be - it might be worth it to calculate derivatives analytically instead of relying on Runge-Kutta methods, which do perform just as nice, but the parameter functions need to be executed far more often.
 This can make methods slower.

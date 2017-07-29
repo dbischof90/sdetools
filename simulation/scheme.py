@@ -22,23 +22,22 @@ class Scheme:
         self.x = sde.startvalue
         self.t = sde.timerange[0]
 
+        if type(self.x) not in (int, float, complex):
+            raise NotImplementedError('Currently just scalar SDEs supported!')
+
         if 'derivatives' in kwargs:
             if 'diffusion_x' in kwargs['derivatives']:
                 self.diffusion_x = self.map_to_parameter_set(kwargs['derivatives']['diffusion_x'], parameter,
                                                              build_information(kwargs['derivatives']['diffusion_x']))
-                kwargs['derivatives'].pop('diffusion_x')
             if 'diffusion_xx' in kwargs['derivatives']:
                 self.diffusion_xx = self.map_to_parameter_set(kwargs['derivatives']['diffusion_xx'], parameter,
                                                               build_information(kwargs['derivatives']['diffusion_xx']))
-                kwargs['derivatives'].pop('diffusion_xx')
             if 'drift_x' in kwargs['derivatives']:
                 self.diffusion_x = self.map_to_parameter_set(kwargs['derivatives']['drift_x'], parameter,
                                                              build_information(kwargs['derivatives']['drift_x']))
-                kwargs['derivatives'].pop('drift_x')
             if 'drift_xx' in kwargs['derivatives']:
                 self.diffusion_x = self.map_to_parameter_set(kwargs['derivatives']['drift_xx'], parameter,
                                                              build_information(kwargs['derivatives']['drift_xx']))
-                kwargs['derivatives'].pop('drift_xx')
 
         if 'path' in kwargs:
             self.driving_stochastic_differential = deque(kwargs['path'])

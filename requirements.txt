@@ -1,6 +1,4 @@
-
-# This file contains all packages needed to run SDEtools.
-
 numpy
 scipy
 pytest
+numba
