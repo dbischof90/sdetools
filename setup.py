@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='sdetools',
-    version='0.1',
+    version='0.3',
     packages=[''],
     url='https://github.com/dbischof90/sdetools',
     install_requires=requirements,

@@ -4,8 +4,8 @@ from simulation.scheme import Scheme
 
 
 class Order_05_Trapez(Scheme):
-    def __init__(self, sde, parameter, steps, alpha=1):
-        super().__init__(sde, parameter, steps)
+    def __init__(self, sde, parameter, steps, alpha=1, **kwargs):
+        super().__init__(sde, parameter, steps, **kwargs)
         self.alpha = alpha
 
     def state_equation(self, x, dW):

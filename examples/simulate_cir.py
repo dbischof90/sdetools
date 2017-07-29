@@ -1,21 +1,25 @@
 
 from time import time
 
+import numba
 import numpy as np
 
 from sde import SDE
 from simulation.strong.explicit.rk import Order_10 as Platen
-from simulation.strong.explicit.taylor import Order_05 as Euler
+from simulation.strong.implicit.taylor import Order_05_Trapez as Euler
 
 """
 We begin with the definition of both drift and diffusion functions and define the CIR process.
 The order in the function interface does matter - the interface needs to be f(x, t, arguments).
 """
 
+
+@numba.jit
 def cir_drift(x, a, b):
     return a * (b - x)
 
 
+@numba.jit
 def cir_diffusion(x, c):
     return np.sqrt(x) * c
 
