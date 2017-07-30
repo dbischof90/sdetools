@@ -6,7 +6,7 @@ import numpy as np
 
 from sde import SDE
 from simulation.strong.explicit.rk import Order_10 as Platen
-from simulation.strong.implicit.taylor import Order_05_Trapez as Euler
+from simulation.strong.explicit.taylor import Order_05 as Euler
 
 """
 We begin with the definition of both drift and diffusion functions and define the CIR process.

@@ -1,25 +1,25 @@
 import pytest
 
 from sde import SDE
-from simulation.scheme import Scheme
+from simulation.strong.explicit.taylor import Order_05 as NumericalScheme
 
 
 def test_missing_parameter():
     with pytest.raises(KeyError):
         sample_sde = SDE(lambda x: x, lambda c: c)
-        Scheme(sample_sde, parameter={}, steps=10)
+        NumericalScheme(sample_sde, parameter={}, steps=10)
 
 
 def test_path_size_consistency():
     with pytest.raises(ValueError):
         sample_sde = SDE(lambda x: x, lambda x: x)
         dW = list(range(5))
-        Scheme(sample_sde, parameter={}, steps=10, path=dW)
+        NumericalScheme(sample_sde, parameter={}, steps=10, path=dW)
 
 
 def test_scheme_derivation():
     with pytest.raises(TypeError):
-        class SomeSpecialScheme(Scheme):
+        class SomeSpecialScheme(NumericalScheme):
             def __init__(self, sde, parameter, steps, **kwargs):
                 super().__init__(sde, parameter, steps, **kwargs)
 

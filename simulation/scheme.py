@@ -5,6 +5,7 @@ Once inherited, the specific scheme has to implement the method 'propagation' to
 a functional implementation.
 """
 
+import abc
 from collections import deque
 
 import numpy as np
@@ -12,7 +13,7 @@ import numpy as np
 from sde import build_information
 
 
-class Scheme:
+class Scheme(metaclass=abc.ABCMeta):
     def __init__(self, sde, parameter, steps, **kwargs):
         self.drift = self.map_to_parameter_set(sde.drift, parameter, sde.information['drift'])
         self.diffusion = self.map_to_parameter_set(sde.diffusion, parameter, sde.information['diffusion'])
@@ -72,6 +73,7 @@ class Scheme:
         else:
             return lambda x, t: func(*func_parameter)
 
+    @abc.abstractmethod
     def propagation(self, x, t):
         pass
 

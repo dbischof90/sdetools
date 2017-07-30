@@ -4,6 +4,7 @@ import numba
 import numpy as np
 
 from sde import SDE
+from simulation.strong.explicit.predictorcorrector import Order_10 as pc_e
 from simulation.strong.explicit.rk import Order_10 as rk_e
 from simulation.strong.explicit.taylor import Order_05 as Euler_e
 from simulation.strong.explicit.taylor import Order_10 as Milstein_e
@@ -101,8 +102,9 @@ def test_convergence_order_10():
     mapped_milstein_i = map_scheme_to_arguments(Milstein_i, sde=gbm_process, parameter=gbm_para_sample,
                                                 derivatives=gbm_derivatives)
     mapped_rk_e = map_scheme_to_arguments(rk_e, sde=gbm_process, parameter=gbm_para_sample)
+    mapped_pc_e = map_scheme_to_arguments(pc_e, sde=gbm_process, parameter=gbm_para_sample, derivatives=gbm_derivatives)
 
-    list_schemes = [mapped_milstein_e, mapped_milstein_i, mapped_rk_e]
+    list_schemes = [mapped_milstein_e, mapped_milstein_i, mapped_rk_e, mapped_pc_e]
     assert list_has_equal_strong_convergence_order(list_schemes, resolutions, 1.0)
 
 

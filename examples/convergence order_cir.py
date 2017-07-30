@@ -1,4 +1,5 @@
 
+import numba
 import numpy as np
 
 from sde import SDE
@@ -24,21 +25,21 @@ The coefficients can then be estimated by linear regression against the log-erro
 end_point = 1
 num_samples = 500
 parameter = {'mu': 0.8, 'sigma': 1}
-resolutions = [2 ** -3, 2 ** -4, 2 ** -5, 2 ** -6, 2 ** -7, 2 ** -8]
+resolutions = [2 ** -4, 2 ** -5, 2 ** -6, 2 ** -7, 2 ** -8, 2 ** -9]
 
-
+@numba.jit
 def gbm_endval_given_bm_endval(t, x0, mu, sigma, bm_t):
     return x0 * np.exp((mu - 0.5 * sigma ** 2) * t + sigma * bm_t)
 
-
+@numba.jit
 def gbm_drift(x, mu):
     return mu * x
 
-
+@numba.jit
 def gbm_diffusion(x, sigma):
     return sigma * x
 
-
+@numba.jit
 def gbm_difusion_x(x, sigma):
     return sigma
 
