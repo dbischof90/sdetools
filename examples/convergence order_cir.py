@@ -1,4 +1,7 @@
 
+import math
+from collections import OrderedDict
+
 import numba
 import numpy as np
 
@@ -24,7 +27,7 @@ The coefficients can then be estimated by linear regression against the log-erro
 
 end_point = 1
 num_samples = 500
-parameter = {'mu': 0.8, 'sigma': 1}
+parameter = OrderedDict(mu=0.6, sigma=0.3)
 resolutions = [2 ** -4, 2 ** -5, 2 ** -6, 2 ** -7, 2 ** -8, 2 ** -9]
 
 @numba.jit
@@ -40,7 +43,7 @@ def gbm_diffusion(x, sigma):
     return sigma * x
 
 @numba.jit
-def gbm_difusion_x(x, sigma):
+def gbm_difusion_x(sigma):
     return sigma
 
 
@@ -53,7 +56,7 @@ platen_values = np.full([num_samples, len(stepsizes)], np.nan)
 milstein_values = np.full([num_samples, len(stepsizes)], np.nan)
 
 for i in range(num_samples):
-    dW_full = np.random.standard_normal(max(stepsizes)) * np.sqrt(end_point / max(stepsizes))
+    dW_full = np.random.standard_normal(max(stepsizes)) * math.sqrt(end_point / max(stepsizes))
     for r_count, res in enumerate(stepsizes, start=0):
 
         dW = [sum(dW_full[int(i * len(dW_full) / res): int((i + 1) * len(dW_full) / res)]) for i in range(res)]
@@ -62,7 +65,7 @@ for i in range(num_samples):
         euler_values[i, r_count] = path_value
 
         for path_value in Milstein(gbm_process, parameter, steps=res, derivatives={'diffusion_x': gbm_difusion_x},
-                                   path=dW): pass
+                                   path=dW, alpha=0.5, beta=0.5): pass
         milstein_values[i, r_count] = path_value
 
         for path_value in Platen(gbm_process, parameter, steps=res, path=dW): pass

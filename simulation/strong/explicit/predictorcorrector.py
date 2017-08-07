@@ -1,7 +1,7 @@
+
 from simulation.scheme import Scheme
 
-
-class Order_10(Scheme):
+class Order_05(Scheme):
     def __init__(self, sde, parameter, steps, derivatives, alpha=0.5, beta=0.5, **kwargs):
         super().__init__(sde, parameter, steps, derivatives=derivatives, **kwargs)
         self.alpha = alpha

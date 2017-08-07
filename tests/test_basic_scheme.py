@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pytest
 
 from sde import SDE
@@ -14,7 +16,7 @@ def test_path_size_consistency():
     with pytest.raises(ValueError):
         sample_sde = SDE(lambda x: x, lambda x: x)
         dW = list(range(5))
-        NumericalScheme(sample_sde, parameter={}, steps=10, path=dW)
+        NumericalScheme(sample_sde, parameter=OrderedDict(), steps=10, path=dW)
 
 
 def test_scheme_derivation():

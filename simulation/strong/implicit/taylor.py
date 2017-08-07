@@ -1,3 +1,4 @@
+
 from scipy.optimize import newton
 
 from simulation.scheme import Scheme

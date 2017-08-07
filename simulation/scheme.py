@@ -1,30 +1,42 @@
 
-"""
-A generic base class to implement a numerical scheme.
-Once inherited, the specific scheme has to implement the method 'propagation' to represent
-a functional implementation.
-"""
-
 import abc
-from collections import deque
+from collections import deque, OrderedDict
+from math import sqrt
 
-import numpy as np
+from numpy.random import standard_normal, randint
 
 from sde import build_information
 
 
 class Scheme(metaclass=abc.ABCMeta):
-    def __init__(self, sde, parameter, steps, **kwargs):
+    """Base class for numerical schemes.
+
+    This abstract base class in inherited by every numerical scheme in order to provide
+    similar features and compatibility. It takes care of functional mappings and implements every scheme
+    as an iterator.
+
+    A specific numerical scheme only has to implement the method 'propagation', which is supposed
+    to modify the discretized process at time t given t-1 inplace
+
+    """
+    def __init__(self, sde, parameter, steps, save_path=True, small_memory=False, **kwargs):
+        """Initializes the numerical scheme."""
+
         self.drift = self.map_to_parameter_set(sde.drift, parameter, sde.information['drift'])
         self.diffusion = self.map_to_parameter_set(sde.diffusion, parameter, sde.information['diffusion'])
         self.steps = steps
         self.currentstep = 0
         self.h = (sde.timerange[1] - sde.timerange[0]) / steps
+        self.sqrt_h = sqrt(self.h)
         self.x = sde.startvalue
         self.t = sde.timerange[0]
+        self.save_path = save_path
+        self.small_memory = small_memory
 
         if type(self.x) not in (int, float, complex):
             raise NotImplementedError('Currently just scalar SDEs supported!')
+        if type(parameter) is not OrderedDict:
+            raise TypeError('Parameter set needs to be specified as collections.OrderedDict!')
 
         if 'derivatives' in kwargs:
             if 'diffusion_x' in kwargs['derivatives']:
@@ -44,15 +56,15 @@ class Scheme(metaclass=abc.ABCMeta):
             self.driving_stochastic_differential = deque(kwargs['path'])
         else:
             if 'strong' in self.__module__:
-                self.driving_stochastic_differential = deque(np.random.standard_normal(steps) * np.sqrt(self.h))
+                self.driving_stochastic_differential = deque(standard_normal(steps) * self.sqrt_h)
+                if 'Order_15' in self.__module__:
+                    self.dZ = deque([0.5 * self.h * self.driving_stochastic_differential[idx] + self.h * self.sqrt_h / sqrt(12) * rnd for idx, rnd in standard_normal(steps)])
             elif 'weak' in self.__module__:
                 if 'Order_10' in self.__module__:
-                    self.driving_stochastic_differential = deque(
-                        (2 * np.random.randint(0, 2, steps) - 1) * np.sqrt(self.h))
+                    self.driving_stochastic_differential = deque((2 * randint(0, 2, steps) - 1) * self.sqrt_h)
                 elif 'Order_20' in self.__module__:
-                    s = np.sqrt(3 * self.h)
-                    self.driving_stochastic_differential = (
-                    deque([0 if l in (1, 2, 3, 4) else s if l == 5 else -s for l in np.random.randint(0, 6, steps)]))
+                    s = sqrt(3 * self.h)
+                    self.driving_stochastic_differential = deque([0 if l in (1, 2, 3, 4) else s if l == 5 else -s for l in randint(0, 6, steps)])
             else:
                 raise TypeError('The proposed scheme is neither weak nor strong; no convergence order can be set.')
 
@@ -84,7 +96,8 @@ class Scheme(metaclass=abc.ABCMeta):
                 self.t += self.h
 
             if not self.currentstep == self.steps:
-                self.dW.append(self.driving_stochastic_differential.popleft())
+                dW_step = self.driving_stochastic_differential.popleft()
+                self.dW.append(dW_step)
 
             self.currentstep += 1
             return self.x

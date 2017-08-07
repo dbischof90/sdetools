@@ -37,8 +37,8 @@ First, we define the standard Black-Scholes European Call price function
 """
 
 def bs_call(S0, K, T, r, sigma):
-    d1 = (np.log(S0 / K) + (r + sigma ** 2 / 2) * T) / (sigma * np.sqrt(T))
-    d2 = (np.log(S0 / K) + (r - sigma ** 2 / 2) * T) / (sigma * np.sqrt(T))
+    d1 = (np.log(S0 / K) + (r + sigma ** 2 / 2) * T) / (sigma * math.sqrt(T))
+    d2 = (np.log(S0 / K) + (r - sigma ** 2 / 2) * T) / (sigma * math.sqrt(T))
     Nd1 = norm.cdf(d1, 0.0, 1.0)
     Nd2 = norm.cdf(d2, 0.0, 1.0)
     return S0 * Nd1 - np.exp(-r * T) * K * Nd2

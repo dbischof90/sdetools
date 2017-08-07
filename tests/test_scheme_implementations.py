@@ -1,10 +1,12 @@
 import functools as ft
+import math
+from collections import OrderedDict
 
 import numba
 import numpy as np
 
 from sde import SDE
-from simulation.strong.explicit.predictorcorrector import Order_10 as pc_e
+# from simulation.strong.explicit.predictorcorrector import Order_10 as pc_e
 from simulation.strong.explicit.rk import Order_10 as rk_e
 from simulation.strong.explicit.taylor import Order_05 as Euler_e
 from simulation.strong.explicit.taylor import Order_10 as Milstein_e
@@ -32,7 +34,7 @@ def build_instance_list_of_mapped_schemes(mapped_scheme, step_list, differential
 def list_has_equal_strong_convergence_order(list_of_schemes, resolutions, order):
 
     stepsizes = [int(np.ceil(end_point / i)) for i in resolutions]
-    differentials = dW_full = [np.random.standard_normal(max(stepsizes)) * np.sqrt(end_point / max(stepsizes)) for i in
+    differentials = [np.random.standard_normal(max(stepsizes)) * math.sqrt(end_point / max(stepsizes)) for i in
                                range(num_samples)]
     analytical_values = np.full([num_samples, len(stepsizes)], np.nan)
     scheme_values = [np.full([num_samples, len(stepsizes)], np.nan) for s in list_of_schemes]
@@ -83,7 +85,7 @@ end_point = 1
 num_samples = 500
 gbm_process = SDE(gbm_drift, gbm_diffusion, timerange=[0, end_point])
 resolutions = [2 ** -4, 2 ** -5, 2 ** -6, 2 ** -7, 2 ** -8, 2 ** -9]
-gbm_para_sample = {'mu': 0.8, 'sigma': 0.6}
+gbm_para_sample = OrderedDict(mu=0.8, sigma=0.6)
 gbm_derivatives = {'diffusion_x': gbm_difusion_x}
 stepsizes = [int(np.ceil(end_point / i)) for i in resolutions]
 
@@ -91,20 +93,16 @@ stepsizes = [int(np.ceil(end_point / i)) for i in resolutions]
 def test_convergence_order_05():
     mapped_euler_e = map_scheme_to_arguments(Euler_e, sde=gbm_process, parameter=gbm_para_sample)
     mapped_euler_i = map_scheme_to_arguments(Euler_i, sde=gbm_process, parameter=gbm_para_sample)
-
-    list_schemes = [mapped_euler_e, mapped_euler_i]
+#    mapped_pc_e = map_scheme_to_arguments(pc_e, sde=gbm_process, parameter=gbm_para_sample, derivatives=gbm_derivatives, beta=1)
+    list_schemes = [mapped_euler_e, mapped_euler_i] #mapped_pc_e]
     assert list_has_equal_strong_convergence_order(list_schemes, resolutions, 0.5)
 
 
 def test_convergence_order_10():
-    mapped_milstein_e = map_scheme_to_arguments(Milstein_e, sde=gbm_process, parameter=gbm_para_sample,
-                                                derivatives=gbm_derivatives)
-    mapped_milstein_i = map_scheme_to_arguments(Milstein_i, sde=gbm_process, parameter=gbm_para_sample,
-                                                derivatives=gbm_derivatives)
+    mapped_milstein_e = map_scheme_to_arguments(Milstein_e, sde=gbm_process, parameter=gbm_para_sample, derivatives=gbm_derivatives)
+    mapped_milstein_i = map_scheme_to_arguments(Milstein_i, sde=gbm_process, parameter=gbm_para_sample, derivatives=gbm_derivatives)
     mapped_rk_e = map_scheme_to_arguments(rk_e, sde=gbm_process, parameter=gbm_para_sample)
-    mapped_pc_e = map_scheme_to_arguments(pc_e, sde=gbm_process, parameter=gbm_para_sample, derivatives=gbm_derivatives)
-
-    list_schemes = [mapped_milstein_e, mapped_milstein_i, mapped_rk_e, mapped_pc_e]
+    list_schemes = [mapped_milstein_e, mapped_milstein_i, mapped_rk_e]
     assert list_has_equal_strong_convergence_order(list_schemes, resolutions, 1.0)
 
 
@@ -122,6 +120,6 @@ def test_if_path_is_handed_through_correctly():
                                                     0.04982364, 0.16280621, -0.03664431, 0.22651330, -0.08565257])
 
     sample_sde = SDE(lambda x: x, lambda x: x)
-    euler_instance = Euler_e(sample_sde, parameter={}, steps=steps_used, path=sample_differential_brownian_motion)
+    euler_instance = Euler_e(sample_sde, parameter=OrderedDict(), steps=steps_used, path=sample_differential_brownian_motion)
     for _ in euler_instance: pass
     assert all(euler_instance.return_path() == sample_differential_brownian_motion)
