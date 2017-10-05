@@ -1,6 +1,7 @@
 
 import math
 from collections import OrderedDict
+from time import time
 
 import numba
 import numpy as np
@@ -26,8 +27,8 @@ The coefficients can then be estimated by linear regression against the log-erro
 """
 
 end_point = 1
-num_samples = 500
-parameter = OrderedDict(mu=0.6, sigma=0.3)
+num_samples = 2000
+parameter = OrderedDict(mu=1, sigma=1)
 resolutions = [2 ** -4, 2 ** -5, 2 ** -6, 2 ** -7, 2 ** -8, 2 ** -9]
 
 @numba.jit
@@ -54,6 +55,7 @@ analytical_values = np.full([num_samples, len(stepsizes)], np.nan)
 euler_values = np.full([num_samples, len(stepsizes)], np.nan)
 platen_values = np.full([num_samples, len(stepsizes)], np.nan)
 milstein_values = np.full([num_samples, len(stepsizes)], np.nan)
+runtime_factor_collection = [[],[],[]]
 
 for i in range(num_samples):
     dW_full = np.random.standard_normal(max(stepsizes)) * math.sqrt(end_point / max(stepsizes))
@@ -61,22 +63,27 @@ for i in range(num_samples):
 
         dW = [sum(dW_full[int(i * len(dW_full) / res): int((i + 1) * len(dW_full) / res)]) for i in range(res)]
 
+        t = time()
         for path_value in Euler(gbm_process, parameter, steps=res, path=dW): pass
         euler_values[i, r_count] = path_value
+        runtime_factor_collection[0].append(time() - t)
 
-        for path_value in Milstein(gbm_process, parameter, steps=res, derivatives={'diffusion_x': gbm_difusion_x},
-                                   path=dW, alpha=0.5, beta=0.5): pass
+        t = time()
+        for path_value in Milstein(gbm_process, parameter, steps=res, derivatives={'diffusion_x': gbm_difusion_x}, path=dW, alpha=0.5, beta=0.5): pass
         milstein_values[i, r_count] = path_value
+        runtime_factor_collection[1].append(time() - t)
 
+        t = time()
         for path_value in Platen(gbm_process, parameter, steps=res, path=dW): pass
         platen_values[i, r_count] = path_value
+        runtime_factor_collection[2].append(time() - t)
 
-        analytical_values[i, r_count] = gbm_endval_given_bm_endval(end_point, 1, parameter['mu'], parameter['sigma'],
-                                                                   np.cumsum(dW)[-1])
+        analytical_values[i, r_count] = gbm_endval_given_bm_endval(end_point, 1, parameter['mu'], parameter['sigma'], np.cumsum(dW)[-1])
 
 euler_errors = np.mean(abs((euler_values - analytical_values)), axis=0)
 milstein_errors = np.mean(abs((milstein_values - analytical_values)), axis=0)
 platen_errors = np.mean(abs((platen_values - analytical_values)), axis=0)
+runtime_factor = [np.mean(scheme)/np.mean(runtime_factor_collection[0]) for scheme in runtime_factor_collection]
 
 log_errors = np.log2(resolutions)
 error_regression_matrix = np.array([np.ones(log_errors.shape), log_errors]).transpose()
@@ -90,3 +97,19 @@ platen_coefficients = np.linalg.solve(error_regression_matrix.T.dot(error_regres
 print("Upper bound Euler errors: {} * h^{}".format(np.exp(euler_coefficients[0]), euler_coefficients[1]))
 print("Upper bound Milstein errors: {} * h^{}".format(np.exp(milstein_coefficients[0]), milstein_coefficients[1]))
 print("Upper bound Platen errors: {} * h^{}".format(np.exp(platen_coefficients[0]), platen_coefficients[1]))
+
+"""
+Based on the linear regression result, we can calculate 
+a) after how many steps we gain a precision advantage over the Euler scheme with an equal amount of steps
+b) after how many steps we gain a time-discounted computational advantage, that is expressing the problem as 
+   a regression in time (assuming every step needs t = m*s seconds for a constant factor m) and expressing the intersection
+   of the linear regressed functions in terms of s and m.
+Since a) is a special case of b) (with m = 1 for every scheme) we will demonstrate the results for b).
+"""
+
+step_advantage_milstein = np.exp((euler_coefficients[0] - milstein_coefficients[0] - milstein_coefficients[1] * np.log2(runtime_factor[1]))/(euler_coefficients[1] - milstein_coefficients[1]))
+step_advantage_platen = np.exp((euler_coefficients[0] - platen_coefficients[0] - platen_coefficients[1] * np.log2(runtime_factor[2]))/(euler_coefficients[1] - platen_coefficients[1]))
+
+print("\nComparison with the Euler Scheme:")
+print("After {} steps, the Milstein scheme is the better choice.".format(int(step_advantage_milstein)))
+print("After {} steps, the Platen scheme is the better choice.".format(int(step_advantage_platen)))

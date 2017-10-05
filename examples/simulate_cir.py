@@ -41,19 +41,13 @@ A dictionary for all parameters is given to the iterators representing the schem
 """
 parameter = OrderedDict(a=2, b=2.5, c=0.2)
 t = time()
-for i in range(100):
-    tmp = []
-    for path in Euler(cir_process, parameter, steps=2000):
-        tmp.append(path)
-    euler_path.append(tmp)
+for _ in range(10):
+    euler_path.append(list(Euler(cir_process, parameter, steps=200000)))
 print("Euler: " + str(time() - t))
 
 t = time()
-for i in range(100):
-    tmp = []
-    for path in Platen(cir_process, parameter, steps=2000):
-        tmp.append(path)
-    platen_path.append(tmp)
+for _ in range(10):
+    platen_path.append(list(Platen(cir_process, parameter, steps=200000)))
 print("Platen: " + str(time() - t))
 
 print('Simulation complete.')

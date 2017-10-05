@@ -1,7 +1,10 @@
 
+import math
+from collections import OrderedDict
 from time import time
 
 import numpy as np
+from numba import jit
 from scipy.stats import norm
 
 from sde import SDE
@@ -27,15 +30,18 @@ error will not necessarily be continuously decreasing.
 T = 1
 r = 0.01
 sigma = 0.2
-K = 70
-S0 = 80
-parameter = {'mu': r, 'sigma': sigma}
+K = 7
+S0 = 8
+
+mc_count = 10000
+parameter = OrderedDict(mu=r, sigma=sigma)
 
 
 """
 First, we define the standard Black-Scholes European Call price function
 """
 
+@jit
 def bs_call(S0, K, T, r, sigma):
     d1 = (np.log(S0 / K) + (r + sigma ** 2 / 2) * T) / (sigma * math.sqrt(T))
     d2 = (np.log(S0 / K) + (r - sigma ** 2 / 2) * T) / (sigma * math.sqrt(T))
@@ -48,15 +54,16 @@ def bs_call(S0, K, T, r, sigma):
 The next step is to define a geometric Brownian Motion.
 """
 
+@jit
 def gbm_drift(x, mu):
     return mu * x
 
-
+@jit
 def gbm_diffusion(x, sigma):
     return sigma * x
 
-
-def gbm_diffusion_x(x, sigma):
+@jit
+def gbm_diffusion_x(sigma):
     return sigma
 
 
@@ -68,30 +75,33 @@ A next step is the generation of 500.000 possible option pay-offs. The option pr
 the discounted mean of the possible pay-offs.
 """
 
+@jit
 def euler_payoffs(steps):
     euler_values = []
-    for i in range(1000000):
+    path = 0.0
+    for i in range(mc_count):
         for path in Order_05(gbm_process, parameter, steps=steps): pass
         euler_values.append(max(path - K, 0))
 
     return euler_values
 
-
+@jit
 def milstein_payoffs(steps):
     milstein_values = []
-    for i in range(1000000):
+    path = 0.0
+    for i in range(mc_count):
         for path in Order_10(gbm_process, parameter, steps=steps, derivatives={'diffusion_x': gbm_diffusion_x}): pass
         milstein_values.append(max(path - K, 0))
 
     return milstein_values
 
-
+@jit
 def euler_discretization_error(steps):
     error = abs(bs_call(S0, K, T, r, sigma) - np.exp(-r * T) * np.mean(euler_payoffs(int(np.ceil(steps)))))
     print("Euler discretization with {} steps: Absolute error {}".format(int(np.ceil(steps)), error))
     return error
 
-
+@jit
 def milstein_discretization_error(steps):
     error = abs(bs_call(S0, K, T, r, sigma) - np.exp(-r * T) * np.mean(milstein_payoffs(int(np.ceil(steps)))))
     print("Milstein discretization with {} steps: Absolute error {}".format(int(np.ceil(steps)), error))
