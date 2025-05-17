@@ -46,23 +46,14 @@ class SDE(object):
 
 def build_information(func):
     try:
-        parameter = list(signature(func).parameters)
+        parameter = set(signature(func).parameters)
     except TypeError:
         print("ERROR: No proper function was given, the information set can't be built.")
         raise
-    else:
-        information = dict()
-        if "x" in parameter:
-            information['spatial'] = True
-            parameter.remove("x")
-        else:
-            information['spatial'] = False
-
-        if "t" in parameter:
-            information['time'] = True
-            parameter.remove("t")
-        else:
-            information['time'] = False
-
-        information['parameter'] = parameter
-        return information
+    
+    information = {
+        'spatial': 'x' in parameter,
+        'time': 't' in parameter,
+        'parameter': list(parameter - {'x', 't'})
+    }
+    return information
